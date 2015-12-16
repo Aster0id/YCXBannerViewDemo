@@ -16,6 +16,7 @@
 		33D08B251C2105C30030DC35 /* YCXBannerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 33D08B241C2105C30030DC35 /* YCXBannerView.m */; };
 		33D08B281C2106300030DC35 /* YCXBannerPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 33D08B271C2106300030DC35 /* YCXBannerPhoto.m */; };
 		33D08B301C210DC40030DC35 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 33D08B2F1C210DC40030DC35 /* DetailViewController.m */; };
+		33D08B331C214F150030DC35 /* YCXBannerPhotoView.m in Sources */ = {isa = PBXBuildFile; fileRef = 33D08B321C214F150030DC35 /* YCXBannerPhotoView.m */; };
 		F9EE5395B38870F2987CBAC7 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 44D1EBF0C6B1B5AD520FAF11 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +37,8 @@
 		33D08B271C2106300030DC35 /* YCXBannerPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCXBannerPhoto.m; sourceTree = "<group>"; };
 		33D08B2E1C210DC40030DC35 /* DetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
 		33D08B2F1C210DC40030DC35 /* DetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
+		33D08B311C214F150030DC35 /* YCXBannerPhotoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YCXBannerPhotoView.h; sourceTree = "<group>"; };
+		33D08B321C214F150030DC35 /* YCXBannerPhotoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YCXBannerPhotoView.m; sourceTree = "<group>"; };
 		44D1EBF0C6B1B5AD520FAF11 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		6BEA941A5A092E40032EDA17 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		E5B47DB787415325F6C163C5 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
@@ -105,6 +108,8 @@
 				33D08B241C2105C30030DC35 /* YCXBannerView.m */,
 				33D08B261C2106300030DC35 /* YCXBannerPhoto.h */,
 				33D08B271C2106300030DC35 /* YCXBannerPhoto.m */,
+				33D08B311C214F150030DC35 /* YCXBannerPhotoView.h */,
+				33D08B321C214F150030DC35 /* YCXBannerPhotoView.m */,
 			);
 			path = YCXBannerView;
 			sourceTree = "<group>";
@@ -249,6 +254,7 @@
 			files = (
 				33D08B131C21048A0030DC35 /* ViewController.m in Sources */,
 				33D08B101C21048A0030DC35 /* AppDelegate.m in Sources */,
+				33D08B331C214F150030DC35 /* YCXBannerPhotoView.m in Sources */,
 				33D08B0D1C21048A0030DC35 /* main.m in Sources */,
 				33D08B281C2106300030DC35 /* YCXBannerPhoto.m in Sources */,
 				33D08B251C2105C30030DC35 /* YCXBannerView.m in Sources */,

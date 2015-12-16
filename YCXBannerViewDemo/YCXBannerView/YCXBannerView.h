@@ -38,7 +38,7 @@
 @property (nonatomic, assign, getter = isAutoplay) BOOL autoplay;
 
 /// BannerView控件的委托
-@property (nonatomic, weak) id<YCXBannerViewDelegate> delegate;
+@property (nonatomic, weak) IBOutlet id<YCXBannerViewDelegate> delegate;
 
 
 /**

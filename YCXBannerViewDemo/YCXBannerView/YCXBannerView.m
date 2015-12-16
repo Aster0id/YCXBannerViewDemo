@@ -11,40 +11,61 @@
 #import "DDPageControl.h"
 
 
-static const NSTimeInterval kTimeInterval = 5.0f;
+static const NSTimeInterval kTimeInterval = 3.0f;
+static const float kDescriptionViewHeight = 31;
+
 
 @interface YCXBannerView ()
 <UIScrollViewDelegate>
 
+// 描述文字视图
+@property (nonatomic, strong) UIView *descriptionView;
+
+// 页码指示器
+@property (nonatomic, strong) DDPageControl *pageControl;
+
+// 描述文字标签
+@property (nonatomic, strong) UILabel *descriptionLabel;
+
+// 图片滚动视图
+@property (nonatomic, strong) UIScrollView *photoViewScrollView;
+
+// 容器视图
+@property (nonatomic, strong) UIView *containerView;
+
 @end
 
 @implementation YCXBannerView {
-    // 图片的滚动视图
-    UIScrollView *_imagesScrollView;
-    // 页码
-    DDPageControl *_pageControl;
-    // 标题
-    UILabel *_title;
+    
     // 图片总数
-    NSUInteger _imagesTotal;
+    NSUInteger _imagesCount;
+    
     // 自动播放定时器
     NSTimer *_autoplayTimer;
 }
 
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.autoplay = YES;
+    }
+    return self;
+}
+
 #pragma mark - Publice Methods
+
 -(void)reloadData {
+    
     // 移除本控件上的所有视图
     for (UIView *view in self.subviews) [view removeFromSuperview];
     
-    // _imagesTotal赋值
-    _imagesTotal = _imagesArray.count;
+    // _imagesCount赋值
+    _imagesCount = _imagesArray.count;
     
-    if (_imagesTotal>0) {
-        
-        [self createImagesScrollView];
-        [self createBottomView];
-        
+    if (_imagesCount > 0) {
+        [self configPhotoViewScrollView];
+        [self configDescriptionView];
     }
 }
 
@@ -59,61 +80,84 @@ static const NSTimeInterval kTimeInterval = 5.0f;
 
 /**
  *	@brief	创建底部视图
- *
  */
--(void)createBottomView
-{
-    UIView *bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, self.bounds.size.height-31, self.bounds.size.width, 31)];
-    bottomView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.8];
-    [self addSubview:bottomView];
+-(void)configDescriptionView {
+    
+    [self addSubview:self.descriptionView];
+    
+    NSArray *descriptionViewHorizontalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[descriptionView]-0-|"
+                                            options:0
+                                            metrics:nil
+                                              views:@{@"descriptionView":self.descriptionView}];
+    NSArray *descriptionViewVerticalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"V:[descriptionView(==height)]-0-|"
+                                            options:0
+                                            metrics:@{@"height":@(kDescriptionViewHeight)}
+                                              views:@{@"descriptionView":self.descriptionView}];
+    
+    [self addConstraints:descriptionViewHorizontalConstraints];
+    [self addConstraints:descriptionViewVerticalConstraints];
     
     //设置pageControl
-    _pageControl = [[DDPageControl alloc] init];
-    [_pageControl setType:DDPageControlTypeOnFullOffFull];
-    [_pageControl setOnColor:[UIColor redColor]];
-    [_pageControl setOffColor:[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.8]];
-    [_pageControl setIndicatorDiameter:6.0f];
-    [_pageControl setIndicatorSpace:8.0f];
-    [_pageControl setNumberOfPages:_imagesTotal];
-    [_pageControl setCurrentPage:0];
-    [_pageControl setCenter:CGPointMake(bottomView.frame.size.width-_pageControl.frame.size.width/2,bottomView.frame.size.height/2)];
-    [bottomView addSubview:_pageControl];
+    [self.descriptionView addSubview:self.pageControl];
     
-    _title = [[UILabel alloc] initWithFrame:CGRectMake(12, 0,  _pageControl.frame.origin.x-12, bottomView.frame.size.height)];
-    _title.textColor = [UIColor whiteColor];
-    _title.font = [UIFont systemFontOfSize:16.0f];
+    // 设置描述文字标签
+    [self.descriptionView addSubview:self.descriptionLabel];
+    
+    
     if (_titleArray.count>0) {
-        _title.text = _titleArray[0];
+        self.descriptionLabel.text = _titleArray[0];
     }
-    [bottomView addSubview:_title];
 }
 
 /**
  * @brief 创建图片滚动视图
- *
  */
-- (void)createImagesScrollView
-{
-    // 设置图片滚动视图
-    _imagesScrollView = [[UIScrollView alloc] init];
-    [_imagesScrollView setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
-    [_imagesScrollView setBounces:YES];
-    [_imagesScrollView setPagingEnabled:YES];
-    [_imagesScrollView setDelegate:self];
-    [_imagesScrollView setUserInteractionEnabled:YES];
-    [_imagesScrollView setShowsHorizontalScrollIndicator:NO];
-    [_imagesScrollView setShowsVerticalScrollIndicator:NO];
+- (void)configPhotoViewScrollView {
     
-    [_imagesScrollView setContentSize:CGSizeMake((_imagesTotal+2) * self.bounds.size.width,
-                                                 self.bounds.size.height)];
-    _imagesScrollView.clipsToBounds = YES;
-    [_imagesScrollView setContentOffset:CGPointMake(0, 0)];
-    [_imagesScrollView scrollRectToVisible:CGRectMake(self.frame.size.width,
-                                                      0,
-                                                      self.frame.size.width,
-                                                      self.frame.size.height)
-                                  animated:NO];
-    [self addSubview:_imagesScrollView];
+    [self addSubview:self.photoViewScrollView];
+    
+    NSArray *photoViewScrollViewHorizontalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[photoViewScrollView]-0-|"
+                                            options:0
+                                            metrics:nil
+                                              views:@{@"photoViewScrollView":self.photoViewScrollView}];
+    NSArray *photoViewScrollViewVerticalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[photoViewScrollView]-0-|"
+                                            options:0
+                                            metrics:nil
+                                              views:@{@"photoViewScrollView":self.photoViewScrollView}];
+    
+    
+    [self addConstraints:photoViewScrollViewHorizontalConstraints];
+    [self addConstraints:photoViewScrollViewVerticalConstraints];
+    
+    [self.photoViewScrollView addSubview:self.containerView];
+    
+    NSLayoutConstraint *containerViewWidth = [NSLayoutConstraint constraintWithItem:self.containerView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeWidth multiplier:_imagesCount + 2 constant:0];
+    NSLayoutConstraint *containerViewHeight = [NSLayoutConstraint constraintWithItem:self.containerView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeHeight multiplier:1 constant:0];
+    [self.photoViewScrollView addConstraint:containerViewWidth];
+    [self.photoViewScrollView addConstraint:containerViewHeight];
+    
+    
+
+    
+    NSArray *photoViewHorizontalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[containerView]-0-|"
+                                            options:0
+                                            metrics:nil
+                                              views:@{@"containerView":self.containerView}];
+    NSArray *photoViewVerticalConstraints =
+    [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[containerView]-0-|"
+                                            options:0
+                                            metrics:nil
+                                              views:@{@"containerView":self.containerView}];
+    
+    
+    [self.photoViewScrollView addConstraints:photoViewHorizontalConstraints];
+    [self.photoViewScrollView addConstraints:photoViewVerticalConstraints];
+    
     
     
     NSMutableArray *mArray = [_imagesArray mutableCopy];
@@ -122,43 +166,46 @@ static const NSTimeInterval kTimeInterval = 5.0f;
     [mArray insertObject:lastURL atIndex:0];
     
     NSString *firstURL = [_imagesArray firstObject]?[_imagesArray firstObject]:@"";
-    [mArray insertObject:firstURL atIndex:_imagesTotal+1];
+    [mArray insertObject:firstURL atIndex:_imagesCount+1];
     
     for (int i = 0; i<mArray.count; i++) {
         UIImageView *imageView = [[UIImageView alloc] init];
-        imageView.frame = CGRectMake(i * self.frame.size.width,
-                                     0,
-                                     self.frame.size.width,
-                                     self.frame.size.height);
         imageView.clipsToBounds = YES;
-        imageView.tag = (i == 0 ? (_imagesTotal - 1) : (i== _imagesTotal+1 ? 0 : i - 1));
         [imageView setContentMode:UIViewContentModeScaleAspectFill];
-        [imageView sd_setImageWithURL:[NSURL URLWithString:mArray[i]]];
         
+        imageView.frame = CGRectMake(i * self.photoViewScrollView.bounds.size.width, 0, self.photoViewScrollView.bounds.size.width, self.photoViewScrollView.bounds.size.height);
+        imageView.translatesAutoresizingMaskIntoConstraints = NO;
+        
+        [self.containerView addSubview:imageView];
+        
+        
+        NSArray *photoViewVerticalConstraints =
+        [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[imageView]-0-|"
+                                                options:0
+                                                metrics:nil
+                                                  views:@{@"imageView":imageView}];
+        [self.photoViewScrollView addConstraints:photoViewVerticalConstraints];
+        
+        NSLayoutConstraint *photoViewWidth = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeWidth multiplier:1 constant:0];
+        [self.photoViewScrollView addConstraint:photoViewWidth];
+        
+        if (i == 0) {
+            NSLayoutConstraint *photoViewLeft = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeLeft multiplier:1 constant:0];
+            [self.photoViewScrollView addConstraint:photoViewLeft];
+        } else {
+            UIView *priorView = [self.containerView.subviews objectAtIndex:i-1];
+            NSLayoutConstraint *photoViewLeft = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:priorView attribute:NSLayoutAttributeTrailing multiplier:1 constant:0];
+            [self.photoViewScrollView addConstraint:photoViewLeft];
+        }
+        
+        imageView.tag = (i == 0 ? (_imagesCount - 1) : (i== _imagesCount+1 ? 0 : i - 1));
+        [imageView sd_setImageWithURL:[NSURL URLWithString:mArray[i]]];
         
         imageView.userInteractionEnabled = YES;
         UITapGestureRecognizer *singleTap1 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewWasTapped:)];
         [imageView addGestureRecognizer:singleTap1];
-
-        [_imagesScrollView addSubview:imageView];
         
         
-        /*
-         UIButton *imgBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-         imgBtn.frame = CGRectMake(i * self.frame.size.width,
-         0,
-         self.frame.size.width,
-         self.frame.size.height);
-         imgBtn.clipsToBounds = YES;
-         imgBtn.tag = i==0 ? 0 : (i==_imagesTotal+1 ? _imagesTotal : i-1);
-         [imgBtn sd_setImageWithURL:[NSURL URLWithString:mArray[i]] forState:UIControlStateNormal];
-         
-         [_imagesScrollView addSubview:imgBtn];
-         
-         [imgBtn addTarget:self
-         action:@selector(clickImage:)
-         forControlEvents:UIControlEventTouchUpInside];
-         */
     }
     
     if (self.isAutoplay) {
@@ -177,28 +224,25 @@ static const NSTimeInterval kTimeInterval = 5.0f;
 {
     [_autoplayTimer invalidate];
     _autoplayTimer = nil;
-    _autoplayTimer = [NSTimer scheduledTimerWithTimeInterval:kTimeInterval target:self
-                                                    selector:@selector(handleImagesScrollViewTimer:)
-                                                    userInfo: nil
-                                                     repeats:YES];
+    _autoplayTimer = [NSTimer scheduledTimerWithTimeInterval:kTimeInterval target:self selector:@selector(handleImagesScrollViewTimer:) userInfo: nil repeats:YES];
 }
 
 
 - (void)handleImagesScrollViewTimer:(NSTimer*)theTimer
 {
-    CGPoint pt = _imagesScrollView.contentOffset;
-    if(pt.x == self.frame.size.width * _imagesTotal) {
+    CGPoint pt = self.photoViewScrollView.contentOffset;
+    if(pt.x == self.frame.size.width * _imagesCount) {
         // 如果当前显示的图片为可变数组中的最后一张图片,
         // 则将图片滚动视图的 contentOffset 设置为原点,重新滚动
-        [_imagesScrollView setContentOffset:CGPointMake(0, 0)];
-        pt = _imagesScrollView.contentOffset;
+        [self.photoViewScrollView setContentOffset:CGPointMake(0, 0)];
+        pt = self.photoViewScrollView.contentOffset;
     }
     //滚动视图
-    [_imagesScrollView scrollRectToVisible:CGRectMake(pt.x+self.frame.size.width,
-                                                      0,
-                                                      self.frame.size.width,
-                                                      self.frame.size.height)
-                                  animated:YES];
+    [self.photoViewScrollView scrollRectToVisible:CGRectMake(pt.x+self.frame.size.width,
+                                                             0,
+                                                             self.frame.size.width,
+                                                             self.frame.size.height)
+                                         animated:YES];
 }
 
 - (void)clickImage:(id)sender
@@ -220,23 +264,23 @@ static const NSTimeInterval kTimeInterval = 5.0f;
 #pragma mark - UIScrollViewDelegate
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    int currentPage = _imagesScrollView.contentOffset.x/_imagesScrollView.frame.size.width;
+    int currentPage = self.photoViewScrollView.contentOffset.x/self.photoViewScrollView.frame.size.width;
     
     if (currentPage == 0) {
         // 如果是最前-1,也就是要开始循环的最后一个
-        [_imagesScrollView scrollRectToVisible:CGRectMake(self.frame.size.width * _imagesTotal,
-                                                          0,
-                                                          self.frame.size.width,
-                                                          self.frame.size.height)
-                                      animated:NO];
+        [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.frame.size.width * _imagesCount,
+                                                                 0,
+                                                                 self.frame.size.width,
+                                                                 self.frame.size.height)
+                                             animated:NO];
     }
-    else if (currentPage == (_imagesTotal+1)) {
+    else if (currentPage == (_imagesCount+1)) {
         // 如果是最后+1,也就是要开始循环的第一个
-        [_imagesScrollView scrollRectToVisible:CGRectMake(self.frame.size.width,
-                                                          0,
-                                                          self.frame.size.width,
-                                                          self.frame.size.height)
-                                      animated:NO];
+        [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.frame.size.width,
+                                                                 0,
+                                                                 self.frame.size.width,
+                                                                 self.frame.size.height)
+                                             animated:NO];
     }
     
     if (self.isAutoplay) {
@@ -250,21 +294,102 @@ static const NSTimeInterval kTimeInterval = 5.0f;
     // roundf() 四舍五入取整
     int imageIndex = (int)roundf(scrollView.contentOffset.x / scrollView.frame.size.width);
     NSInteger index = (imageIndex == 0?
-                       _imagesTotal-1:
-                       (imageIndex == _imagesTotal +1?0:imageIndex - 1));
-    _pageControl.currentPage = index;
+                       _imagesCount-1:
+                       (imageIndex == _imagesCount +1?0:imageIndex - 1));
+    self.pageControl.currentPage = index;
     if (_titleArray.count>index) {
-        _title.text = self.titleArray[index];
+        self.descriptionLabel.text = self.titleArray[index];
     }
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    if (_imagesTotal>0) {
-        [self reloadData];
-//        [self createImagesScrollView];
-//        [self createBottomView];
+
+    [self.photoViewScrollView setContentOffset:CGPointMake(0, 0)];
+    [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.frame.size.width, 0, self.frame.size.width, self.frame.size.height) animated:NO];
+}
+
+
+#pragma mark - setter/getter
+
+- (UIView *)descriptionView {
+    if (!_descriptionView) {
+        _descriptionView = [[UIView alloc] init];
+        _descriptionView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.65];
+        
+        _descriptionView.frame = CGRectMake(0, self.bounds.size.height-31, self.bounds.size.width, kDescriptionViewHeight);
+        _descriptionView.translatesAutoresizingMaskIntoConstraints = NO;
     }
+    return _descriptionView;
+}
+
+- (DDPageControl *)pageControl {
+    if (!_pageControl) {
+        _pageControl = [[DDPageControl alloc] init];
+        [_pageControl setType:DDPageControlTypeOnFullOffFull];
+        [_pageControl setOnColor:[UIColor redColor]];
+        [_pageControl setOffColor:[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.8]];
+        [_pageControl setIndicatorDiameter:6.0f];
+        [_pageControl setIndicatorSpace:8.0f];
+        [_pageControl setNumberOfPages:_imagesCount];
+        [_pageControl setCurrentPage:0];
+        
+        [_pageControl setFrame:CGRectMake(self.descriptionView.frame.size.width - (_pageControl.frame.size.width), (self.descriptionView.frame.size.height - _pageControl.frame.size.height)/2, _pageControl.frame.size.width, _pageControl.frame.size.height)];
+        
+        _pageControl.autoresizingMask =
+        UIViewAutoresizingFlexibleTopMargin |
+        UIViewAutoresizingFlexibleLeftMargin |
+        UIViewAutoresizingFlexibleRightMargin|
+        UIViewAutoresizingFlexibleBottomMargin;
+        
+    }
+    return _pageControl;
+}
+
+- (UIView *)descriptionLabel {
+    
+    if (!_descriptionLabel) {
+        _descriptionLabel = [[UILabel alloc] init];
+        _descriptionLabel.textColor = [UIColor whiteColor];
+        _descriptionLabel.font = [UIFont systemFontOfSize:16.0f];
+        
+        _descriptionLabel.frame = CGRectMake(12, 0,  self.pageControl.frame.origin.x, self.descriptionView.frame.size.height);
+        
+        _descriptionLabel.autoresizingMask =
+        UIViewAutoresizingFlexibleTopMargin |
+        UIViewAutoresizingFlexibleWidth |
+        UIViewAutoresizingFlexibleBottomMargin;
+    }
+    return _descriptionLabel;
+}
+
+- (UIScrollView *)photoViewScrollView {
+    if (!_photoViewScrollView) {
+        // 设置图片滚动视图
+        _photoViewScrollView = [[UIScrollView alloc] init];
+        _photoViewScrollView.bounces = NO;
+        _photoViewScrollView.pagingEnabled = YES;
+        _photoViewScrollView.userInteractionEnabled = YES;
+        _photoViewScrollView.showsHorizontalScrollIndicator = NO;
+        _photoViewScrollView.showsVerticalScrollIndicator = NO;
+        _photoViewScrollView.clipsToBounds = YES;
+        
+        _photoViewScrollView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
+        _photoViewScrollView.translatesAutoresizingMaskIntoConstraints = NO;
+        
+        [_photoViewScrollView setDelegate:self];
+        
+    }
+    return _photoViewScrollView;
+}
+
+- (UIView *)containerView {
+    if (!_containerView) {
+        _containerView  = [[UIView alloc] init];
+        _containerView.frame = CGRectMake(0, 0, self.frame.size.width*_imagesCount, self.frame.size.height);
+        _containerView.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _containerView;
 }
 
 @end
