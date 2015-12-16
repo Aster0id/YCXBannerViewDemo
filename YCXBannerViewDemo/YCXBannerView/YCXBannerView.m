@@ -59,6 +59,11 @@ static const float kDescriptionViewHeight = 31;
     
     // 移除本控件上的所有视图
     for (UIView *view in self.subviews) [view removeFromSuperview];
+    self.descriptionView = nil;
+    self.photoViewScrollView = nil;
+    self.pageControl = nil;
+    self.containerView = nil;
+    self.descriptionLabel = nil;
     
     // _imagesCount赋值
     _imagesCount = _imagesArray.count;
@@ -158,6 +163,7 @@ static const float kDescriptionViewHeight = 31;
     [self.photoViewScrollView addConstraints:photoViewHorizontalConstraints];
     [self.photoViewScrollView addConstraints:photoViewVerticalConstraints];
     
+    //[self layoutSubviews];
     
     
     NSMutableArray *mArray = [_imagesArray mutableCopy];
@@ -190,8 +196,8 @@ static const float kDescriptionViewHeight = 31;
         [self.photoViewScrollView addConstraint:photoViewWidth];
         
         if (i == 0) {
-            NSLayoutConstraint *photoViewLeft = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeLeft multiplier:1 constant:0];
-            [self.photoViewScrollView addConstraint:photoViewLeft];
+            NSLayoutConstraint *photoViewLeft = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.containerView attribute:NSLayoutAttributeLeft multiplier:1 constant:0];
+            [self.containerView addConstraint:photoViewLeft];
         } else {
             UIView *priorView = [self.containerView.subviews objectAtIndex:i-1];
             NSLayoutConstraint *photoViewLeft = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:priorView attribute:NSLayoutAttributeTrailing multiplier:1 constant:0];
@@ -305,8 +311,14 @@ static const float kDescriptionViewHeight = 31;
 - (void)layoutSubviews {
     [super layoutSubviews];
 
+    self.descriptionView.frame = CGRectMake(0, self.bounds.size.height-31, self.bounds.size.width, kDescriptionViewHeight);
+
+    self.containerView.frame = CGRectMake(0, 0, self.bounds.size.width*(_imagesCount+2), self.bounds.size.height);
+
+    self.photoViewScrollView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
+    [self.photoViewScrollView setContentSize:self.containerView.bounds.size];
     [self.photoViewScrollView setContentOffset:CGPointMake(0, 0)];
-    [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.frame.size.width, 0, self.frame.size.width, self.frame.size.height) animated:NO];
+    [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.photoViewScrollView.frame.size.width, 0, self.photoViewScrollView.frame.size.width, self.photoViewScrollView.frame.size.height) animated:NO];
 }
 
 
@@ -317,7 +329,6 @@ static const float kDescriptionViewHeight = 31;
         _descriptionView = [[UIView alloc] init];
         _descriptionView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.65];
         
-        _descriptionView.frame = CGRectMake(0, self.bounds.size.height-31, self.bounds.size.width, kDescriptionViewHeight);
         _descriptionView.translatesAutoresizingMaskIntoConstraints = NO;
     }
     return _descriptionView;
@@ -374,7 +385,6 @@ static const float kDescriptionViewHeight = 31;
         _photoViewScrollView.showsVerticalScrollIndicator = NO;
         _photoViewScrollView.clipsToBounds = YES;
         
-        _photoViewScrollView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
         _photoViewScrollView.translatesAutoresizingMaskIntoConstraints = NO;
         
         [_photoViewScrollView setDelegate:self];
@@ -386,7 +396,6 @@ static const float kDescriptionViewHeight = 31;
 - (UIView *)containerView {
     if (!_containerView) {
         _containerView  = [[UIView alloc] init];
-        _containerView.frame = CGRectMake(0, 0, self.frame.size.width*_imagesCount, self.frame.size.height);
         _containerView.translatesAutoresizingMaskIntoConstraints = NO;
     }
     return _containerView;

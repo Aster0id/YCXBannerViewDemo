@@ -27,13 +27,23 @@
     [super viewDidLoad];
     NSArray *images =
     @[@"https://raw.githubusercontent.com/Aster0id/TestData/master/img1.jpg",
-     @"https://raw.githubusercontent.com/Aster0id/TestData/master/img2.jpg",
+      @"https://raw.githubusercontent.com/Aster0id/TestData/master/img2.jpg",
       @"https://raw.githubusercontent.com/Aster0id/TestData/master/img3.jpg",
       @"https://raw.githubusercontent.com/Aster0id/TestData/master/img4.jpg"
       ];
     [self.bannerView resetBannerViewWithImagesArray:images andAutoplay:YES];
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Reload" style:UIBarButtonItemStylePlain target:self action:@selector(reload)];
 }
 
+- (void)reload {
+    NSArray *images = @[
+                        @"https://raw.githubusercontent.com/Aster0id/TestData/master/img3.jpg",
+                        @"https://raw.githubusercontent.com/Aster0id/TestData/master/img2.jpg",
+                        @"https://raw.githubusercontent.com/Aster0id/TestData/master/img4.jpg"
+                        ];
+    [self.bannerView resetBannerViewWithImagesArray:images andAutoplay:YES];
+}
 
 #pragma mark - YCXBannerViewDelegate
 
