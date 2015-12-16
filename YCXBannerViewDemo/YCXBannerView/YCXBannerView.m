@@ -45,6 +45,8 @@ static const float kDescriptionViewHeight = 31;
 }
 
 
+#pragma mark - System Methods
+
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -53,35 +55,53 @@ static const float kDescriptionViewHeight = 31;
     return self;
 }
 
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    self.descriptionView.frame = CGRectMake(0, self.bounds.size.height-31, self.bounds.size.width, kDescriptionViewHeight);
+    
+    self.containerView.frame = CGRectMake(0, 0, self.bounds.size.width*(_imagesCount+2), self.bounds.size.height);
+    
+    self.photoViewScrollView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
+    [self.photoViewScrollView setContentSize:self.containerView.bounds.size];
+    [self.photoViewScrollView setContentOffset:CGPointMake(0, 0)];
+    [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.photoViewScrollView.frame.size.width, 0, self.photoViewScrollView.frame.size.width, self.photoViewScrollView.frame.size.height) animated:NO];
+}
+
+
 #pragma mark - Publice Methods
 
 -(void)reloadData {
     
-    // 移除本控件上的所有视图
-    for (UIView *view in self.subviews) [view removeFromSuperview];
-    self.descriptionView = nil;
-    self.photoViewScrollView = nil;
-    self.pageControl = nil;
-    self.containerView = nil;
-    self.descriptionLabel = nil;
+    [self reduction];
     
+    NSAssert(self.imagesArray.count > 0, @"图片数组不能为空");
     // _imagesCount赋值
-    _imagesCount = _imagesArray.count;
+    _imagesCount = self.imagesArray.count;
     
-    if (_imagesCount > 0) {
-        [self configPhotoViewScrollView];
-        [self configDescriptionView];
-    }
+    [self configPhotoViewScrollView];
+    [self configDescriptionView];
 }
 
 - (void)resetBannerViewWithImagesArray:(NSArray *)imagesArray andAutoplay:(BOOL)autoplay {
-    _imagesArray = imagesArray;
-    _autoplay = autoplay;
+    
+    self.imagesArray = imagesArray;
+    self.autoplay = autoplay;
     
     [self reloadData];
 }
 
 #pragma mark - Private Methods
+
+- (void)reduction {
+    
+    // 销毁控件上的所有视图
+    self.descriptionView = nil;
+    self.photoViewScrollView = nil;
+    self.pageControl = nil;
+    self.containerView = nil;
+    self.descriptionLabel = nil;
+}
 
 /**
  *	@brief	创建底部视图
@@ -90,17 +110,8 @@ static const float kDescriptionViewHeight = 31;
     
     [self addSubview:self.descriptionView];
     
-    NSArray *descriptionViewHorizontalConstraints =
-    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[descriptionView]-0-|"
-                                            options:0
-                                            metrics:nil
-                                              views:@{@"descriptionView":self.descriptionView}];
-    NSArray *descriptionViewVerticalConstraints =
-    [NSLayoutConstraint constraintsWithVisualFormat:@"V:[descriptionView(==height)]-0-|"
-                                            options:0
-                                            metrics:@{@"height":@(kDescriptionViewHeight)}
-                                              views:@{@"descriptionView":self.descriptionView}];
-    
+    NSArray *descriptionViewHorizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[descriptionView]-0-|" options:0 metrics:nil views:@{@"descriptionView":self.descriptionView}];
+    NSArray *descriptionViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[descriptionView(==height)]-0-|" options:0 metrics:@{@"height":@(kDescriptionViewHeight)} views:@{@"descriptionView":self.descriptionView}];
     [self addConstraints:descriptionViewHorizontalConstraints];
     [self addConstraints:descriptionViewVerticalConstraints];
     
@@ -123,18 +134,8 @@ static const float kDescriptionViewHeight = 31;
     
     [self addSubview:self.photoViewScrollView];
     
-    NSArray *photoViewScrollViewHorizontalConstraints =
-    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[photoViewScrollView]-0-|"
-                                            options:0
-                                            metrics:nil
-                                              views:@{@"photoViewScrollView":self.photoViewScrollView}];
-    NSArray *photoViewScrollViewVerticalConstraints =
-    [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[photoViewScrollView]-0-|"
-                                            options:0
-                                            metrics:nil
-                                              views:@{@"photoViewScrollView":self.photoViewScrollView}];
-    
-    
+    NSArray *photoViewScrollViewHorizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[scrollView]-0-|" options:0 metrics:nil views:@{@"scrollView":self.photoViewScrollView}];
+    NSArray *photoViewScrollViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[scrollView]-0-|" options:0 metrics:nil views:@{@"scrollView":self.photoViewScrollView}];
     [self addConstraints:photoViewScrollViewHorizontalConstraints];
     [self addConstraints:photoViewScrollViewVerticalConstraints];
     
@@ -144,37 +145,24 @@ static const float kDescriptionViewHeight = 31;
     NSLayoutConstraint *containerViewHeight = [NSLayoutConstraint constraintWithItem:self.containerView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeHeight multiplier:1 constant:0];
     [self.photoViewScrollView addConstraint:containerViewWidth];
     [self.photoViewScrollView addConstraint:containerViewHeight];
-    
-    
 
-    
     NSArray *photoViewHorizontalConstraints =
-    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[containerView]-0-|"
-                                            options:0
-                                            metrics:nil
-                                              views:@{@"containerView":self.containerView}];
-    NSArray *photoViewVerticalConstraints =
-    [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[containerView]-0-|"
-                                            options:0
-                                            metrics:nil
-                                              views:@{@"containerView":self.containerView}];
-    
-    
+    [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[containerView]-0-|" options:0 metrics:nil views:@{@"containerView":self.containerView}];
+    NSArray *photoViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[containerView]-0-|" options:0 metrics:nil views:@{@"containerView":self.containerView}];
     [self.photoViewScrollView addConstraints:photoViewHorizontalConstraints];
     [self.photoViewScrollView addConstraints:photoViewVerticalConstraints];
     
-    //[self layoutSubviews];
+#warning mark-写到这里
+    NSMutableArray *mArray = [self.imagesArray mutableCopy];
     
-    
-    NSMutableArray *mArray = [_imagesArray mutableCopy];
-    
-    NSString *lastURL = [_imagesArray lastObject]?[_imagesArray lastObject]:@"";
+    NSString *lastURL = [self.imagesArray lastObject]?[self.imagesArray lastObject]:@"";
     [mArray insertObject:lastURL atIndex:0];
     
-    NSString *firstURL = [_imagesArray firstObject]?[_imagesArray firstObject]:@"";
+    NSString *firstURL = [self.imagesArray firstObject]?[self.imagesArray firstObject]:@"";
     [mArray insertObject:firstURL atIndex:_imagesCount+1];
     
     for (int i = 0; i<mArray.count; i++) {
+        
         UIImageView *imageView = [[UIImageView alloc] init];
         imageView.clipsToBounds = YES;
         [imageView setContentMode:UIViewContentModeScaleAspectFill];
@@ -184,12 +172,7 @@ static const float kDescriptionViewHeight = 31;
         
         [self.containerView addSubview:imageView];
         
-        
-        NSArray *photoViewVerticalConstraints =
-        [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[imageView]-0-|"
-                                                options:0
-                                                metrics:nil
-                                                  views:@{@"imageView":imageView}];
+        NSArray *photoViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[imageView]-0-|" options:0 metrics:nil views:@{@"imageView":imageView}];
         [self.photoViewScrollView addConstraints:photoViewVerticalConstraints];
         
         NSLayoutConstraint *photoViewWidth = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeWidth multiplier:1 constant:0];
@@ -306,19 +289,6 @@ static const float kDescriptionViewHeight = 31;
     if (_titleArray.count>index) {
         self.descriptionLabel.text = self.titleArray[index];
     }
-}
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-
-    self.descriptionView.frame = CGRectMake(0, self.bounds.size.height-31, self.bounds.size.width, kDescriptionViewHeight);
-
-    self.containerView.frame = CGRectMake(0, 0, self.bounds.size.width*(_imagesCount+2), self.bounds.size.height);
-
-    self.photoViewScrollView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
-    [self.photoViewScrollView setContentSize:self.containerView.bounds.size];
-    [self.photoViewScrollView setContentOffset:CGPointMake(0, 0)];
-    [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.photoViewScrollView.frame.size.width, 0, self.photoViewScrollView.frame.size.width, self.photoViewScrollView.frame.size.height) animated:NO];
 }
 
 

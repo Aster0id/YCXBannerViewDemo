@@ -59,7 +59,7 @@
                     <navigationItem key="navigationItem" title="YCXBannerViewDeme" id="7Dn-LP-bz6"/>
                     <connections>
                         <outlet property="tableView" destination="PsD-Tm-uzq" id="hIq-oH-4HW"/>
-                        <segue destination="Waw-XR-kii" kind="show" id="ehS-W7-OrK"/>
+                        <segue destination="Waw-XR-kii" kind="show" identifier="ToDetail" id="ehS-W7-OrK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
