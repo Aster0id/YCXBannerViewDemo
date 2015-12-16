@@ -7,6 +7,8 @@
 //
 
 #import "ViewController.h"
+#import "DetailViewController.h"
+
 
 @interface ViewController ()
 <UITableViewDataSource, UITableViewDelegate>
@@ -15,6 +17,7 @@
 
 @end
 
+
 @implementation ViewController
 {
     NSArray *_list;
@@ -22,7 +25,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _list = @[@"本地图片",@"网络图片"];
+    _list =
+    @[
+      @{@"title":@"本地图片",@"type":@(YCXTypeLocal)},
+      @{@"title":@"网络图片",@"type":@(YCXTypeNetwork)}
+      ];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -39,7 +46,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
-    cell.textLabel.text = _list[indexPath.row];
+    cell.textLabel.text = _list[indexPath.row][@"title"];
     return cell;
 }
 
@@ -49,7 +56,10 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    NSLog(@"%@", indexPath);
+    DetailViewController *detail = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"DetailViewController"];
+    detail.type = [_list[indexPath.row][@"type"] integerValue];
+    
+    [self.navigationController pushViewController:detail animated:YES];
     
 }
 @end
