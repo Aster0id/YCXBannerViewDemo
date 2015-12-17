@@ -9,6 +9,7 @@
 #import "YCXBannerView.h"
 #import "UIImageView+WebCache.h"
 #import "DDPageControl.h"
+#import "YCXBannerPhotoView.h"
 
 
 static const NSTimeInterval kTimeInterval = 3.0f;
@@ -51,6 +52,7 @@ static const float kDescriptionViewHeight = 31;
     self = [super init];
     if (self) {
         self.autoplay = YES;
+        self.backgroundColor = [UIColor colorWithWhite:0.97 alpha:1.0];
     }
     return self;
 }
@@ -94,10 +96,11 @@ static const float kDescriptionViewHeight = 31;
 #pragma mark - Private Methods
 
 - (void)reduction {
-    
     // 销毁控件上的所有视图
-    self.descriptionView = nil;
+    [self.photoViewScrollView removeFromSuperview];
     self.photoViewScrollView = nil;
+    [self.descriptionView removeFromSuperview];
+    self.descriptionView = nil;
     self.pageControl = nil;
     self.containerView = nil;
     self.descriptionLabel = nil;
@@ -152,49 +155,50 @@ static const float kDescriptionViewHeight = 31;
     [self.photoViewScrollView addConstraints:photoViewHorizontalConstraints];
     [self.photoViewScrollView addConstraints:photoViewVerticalConstraints];
     
-#warning mark-写到这里
-    NSMutableArray *mArray = [self.imagesArray mutableCopy];
+
+    NSMutableArray *mPhotoArray = [self.imagesArray mutableCopy];
     
-    NSString *lastURL = [self.imagesArray lastObject]?[self.imagesArray lastObject]:@"";
-    [mArray insertObject:lastURL atIndex:0];
+    YCXBannerPhoto *lastPhoto = [self.imagesArray lastObject];
+    [mPhotoArray insertObject:lastPhoto atIndex:0];
     
-    NSString *firstURL = [self.imagesArray firstObject]?[self.imagesArray firstObject]:@"";
-    [mArray insertObject:firstURL atIndex:_imagesCount+1];
+    NSString *firstPhoto = [self.imagesArray firstObject];
+    [mPhotoArray insertObject:firstPhoto atIndex:_imagesCount+1];
     
-    for (int i = 0; i<mArray.count; i++) {
+    
+    for (NSInteger i = 0; i<mPhotoArray.count; i++) {
         
-        UIImageView *imageView = [[UIImageView alloc] init];
-        imageView.clipsToBounds = YES;
-        [imageView setContentMode:UIViewContentModeScaleAspectFill];
+        YCXBannerPhotoView *photoView = [[YCXBannerPhotoView alloc] init];
+        photoView.photo = mPhotoArray[i];
+
+        photoView.frame = CGRectMake(i * self.photoViewScrollView.bounds.size.width, 0, self.photoViewScrollView.bounds.size.width, self.photoViewScrollView.bounds.size.height);
+        photoView.translatesAutoresizingMaskIntoConstraints = NO;
         
-        imageView.frame = CGRectMake(i * self.photoViewScrollView.bounds.size.width, 0, self.photoViewScrollView.bounds.size.width, self.photoViewScrollView.bounds.size.height);
-        imageView.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.containerView addSubview:photoView];
         
-        [self.containerView addSubview:imageView];
-        
-        NSArray *photoViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[imageView]-0-|" options:0 metrics:nil views:@{@"imageView":imageView}];
+        NSArray *photoViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[photoView]-0-|" options:0 metrics:nil views:@{@"photoView":photoView}];
         [self.photoViewScrollView addConstraints:photoViewVerticalConstraints];
         
-        NSLayoutConstraint *photoViewWidth = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeWidth multiplier:1 constant:0];
+        NSLayoutConstraint *photoViewWidth = [NSLayoutConstraint constraintWithItem:photoView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeWidth multiplier:1 constant:0];
         [self.photoViewScrollView addConstraint:photoViewWidth];
         
         if (i == 0) {
-            NSLayoutConstraint *photoViewLeft = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.containerView attribute:NSLayoutAttributeLeft multiplier:1 constant:0];
+            NSLayoutConstraint *photoViewLeft = [NSLayoutConstraint constraintWithItem:photoView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.containerView attribute:NSLayoutAttributeLeft multiplier:1 constant:0];
             [self.containerView addConstraint:photoViewLeft];
         } else {
             UIView *priorView = [self.containerView.subviews objectAtIndex:i-1];
-            NSLayoutConstraint *photoViewLeft = [NSLayoutConstraint constraintWithItem:imageView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:priorView attribute:NSLayoutAttributeTrailing multiplier:1 constant:0];
+            NSLayoutConstraint *photoViewLeft = [NSLayoutConstraint constraintWithItem:photoView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:priorView attribute:NSLayoutAttributeTrailing multiplier:1 constant:0];
             [self.photoViewScrollView addConstraint:photoViewLeft];
         }
         
-        imageView.tag = (i == 0 ? (_imagesCount - 1) : (i== _imagesCount+1 ? 0 : i - 1));
-        [imageView sd_setImageWithURL:[NSURL URLWithString:mArray[i]]];
-        
-        imageView.userInteractionEnabled = YES;
-        UITapGestureRecognizer *singleTap1 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewWasTapped:)];
-        [imageView addGestureRecognizer:singleTap1];
-        
-        
+        photoView.tag = i;
+        photoView.index = (i == 0 ? (_imagesCount - 1) : (i== _imagesCount+1 ? 0 : i - 1));
+
+        [photoView setTapPhotoView:^(YCXBannerPhotoView *photoView){
+            if (self.delegate && [self.delegate respondsToSelector:@selector(bannerView:clickAtIndex:)]) {
+                [self.delegate bannerView:self clickAtIndex:photoView.index];
+            }
+        }];
+
     }
     
     if (self.isAutoplay) {
@@ -202,23 +206,15 @@ static const float kDescriptionViewHeight = 31;
     }
 }
 
-
-- (void)viewWasTapped:(UITapGestureRecognizer *)gesture {
-    UIView *view = gesture.view;
-    [self clickImage:view];
-}
-
 /// 自动循环滚动
-- (void) autoPlayScrollView
-{
+- (void) autoPlayScrollView {
     [_autoplayTimer invalidate];
     _autoplayTimer = nil;
     _autoplayTimer = [NSTimer scheduledTimerWithTimeInterval:kTimeInterval target:self selector:@selector(handleImagesScrollViewTimer:) userInfo: nil repeats:YES];
 }
 
 
-- (void)handleImagesScrollViewTimer:(NSTimer*)theTimer
-{
+- (void)handleImagesScrollViewTimer:(NSTimer*)theTimer {
     CGPoint pt = self.photoViewScrollView.contentOffset;
     if(pt.x == self.frame.size.width * _imagesCount) {
         // 如果当前显示的图片为可变数组中的最后一张图片,
@@ -234,42 +230,19 @@ static const float kDescriptionViewHeight = 31;
                                          animated:YES];
 }
 
-- (void)clickImage:(id)sender
-{
-    if ([sender isKindOfClass:[UIButton class]]) {
-        UIButton *btn = (UIButton *)sender;
-        if (self.delegate && [self.delegate respondsToSelector:@selector(bannerView:clickAtIndex:)]) {
-            [self.delegate bannerView:self clickAtIndex:btn.tag];
-        }
-    } else if  ([sender isKindOfClass:[UIImageView class]]) {
-        UIImageView *img = (UIImageView *)sender;
-        if (self.delegate && [self.delegate respondsToSelector:@selector(bannerView:clickAtIndex:)]) {
-            [self.delegate bannerView:self clickAtIndex:img.tag];
-        }
-    }
-}
-
 
 #pragma mark - UIScrollViewDelegate
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     int currentPage = self.photoViewScrollView.contentOffset.x/self.photoViewScrollView.frame.size.width;
     
     if (currentPage == 0) {
         // 如果是最前-1,也就是要开始循环的最后一个
-        [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.frame.size.width * _imagesCount,
-                                                                 0,
-                                                                 self.frame.size.width,
-                                                                 self.frame.size.height)
-                                             animated:NO];
+        [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.frame.size.width * _imagesCount, 0, self.frame.size.width, self.frame.size.height) animated:NO];
     }
     else if (currentPage == (_imagesCount+1)) {
         // 如果是最后+1,也就是要开始循环的第一个
-        [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.frame.size.width,
-                                                                 0,
-                                                                 self.frame.size.width,
-                                                                 self.frame.size.height)
-                                             animated:NO];
+        [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.frame.size.width, 0, self.frame.size.width, self.frame.size.height) animated:NO];
     }
     
     if (self.isAutoplay) {
@@ -277,8 +250,7 @@ static const float kDescriptionViewHeight = 31;
     }
 }
 
--(void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView {
     // 设置pageControl.currentPage
     // roundf() 四舍五入取整
     int imageIndex = (int)roundf(scrollView.contentOffset.x / scrollView.frame.size.width);

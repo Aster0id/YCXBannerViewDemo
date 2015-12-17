@@ -22,6 +22,12 @@
 @property (nonatomic, strong) UIImage *underlyingImage;
 
 - (id)initWithImage:(UIImage *)image;
-- (id)initWithURL:(NSURL *)url;
+- (id)initWithURL:(id)url;
+
+
+// Cancel any background loading of image data
+- (void)cancelAnyLoading;
+
+- (void)loadUnderlyingImageAndNotify;
 
 @end

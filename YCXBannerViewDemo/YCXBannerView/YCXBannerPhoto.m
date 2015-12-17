@@ -39,9 +39,16 @@
     return self;
 }
 
-- (id)initWithURL:(NSURL *)url {
+- (id)initWithURL:(id)url {
     if ((self = [super init])) {
-        self.photoURL = url;
+        if ([url isKindOfClass:[NSURL class]]) {
+            self.photoURL = url;
+        }
+        else if ([url isKindOfClass:[NSString class]]) {
+            self.photoURL = [NSURL  URLWithString:url];
+        } else {
+            NSAssert(NO, @"URL连接不正确");
+        }
     }
     return self;
 }
@@ -85,22 +92,6 @@
         
     } else if (_photoURL) {
         
-        /*
-         // Check what type of url it is
-         if ([[[_photoURL scheme] lowercaseString] isEqualToString:@"assets-library"]) {
-         // Load from assets library
-         [self _performLoadUnderlyingImageAndNotifyWithAssetsLibraryURL: _photoURL];
-         }
-         else if ([_photoURL isFileReferenceURL]) {
-         // Load from local file async
-         [self _performLoadUnderlyingImageAndNotifyWithLocalFileURL: _photoURL];
-         }
-         else {
-         // Load async from web (using SDWebImage)
-         [self _performLoadUnderlyingImageAndNotifyWithWebURL: _photoURL];
-         }
-         */
-        
         [self _performLoadUnderlyingImageAndNotifyWithWebURL: _photoURL];
         
     } else {
@@ -125,6 +116,12 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_LOADING_DID_END_NOTIFICATION object:self];
 }
 
+- (void)cancelAnyLoading {
+    if (_webImageOperation != nil) {
+        [_webImageOperation cancel];
+        _loadingInProgress = NO;
+    }
+}
 
 #pragma mark - Private Methods
 
@@ -156,51 +153,5 @@
         [self imageLoadingComplete];
     }
 }
-
-/*
- // Load from local file
- - (void)_performLoadUnderlyingImageAndNotifyWithLocalFileURL:(NSURL *)url {
- dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
- @autoreleasepool {
- @try {
- self.underlyingImage = [UIImage imageWithContentsOfFile:url.path];
- if (!_underlyingImage) {
- MWLog(@"Error loading photo from path: %@", url.path);
- }
- } @finally {
- [self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
- }
- }
- });
- }
  
- // Load from asset library async
- - (void)_performLoadUnderlyingImageAndNotifyWithAssetsLibraryURL:(NSURL *)url {
- dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
- @autoreleasepool {
- @try {
- ALAssetsLibrary *assetslibrary = [[ALAssetsLibrary alloc] init];
- [assetslibrary assetForURL:url
- resultBlock:^(ALAsset *asset){
- ALAssetRepresentation *rep = [asset defaultRepresentation];
- CGImageRef iref = [rep fullScreenImage];
- if (iref) {
- self.underlyingImage = [UIImage imageWithCGImage:iref];
- }
- [self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
- }
- failureBlock:^(NSError *error) {
- self.underlyingImage = nil;
- MWLog(@"Photo from asset library error: %@",error);
- [self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
- }];
- } @catch (NSException *e) {
- MWLog(@"Photo from asset library error: %@", e);
- [self performSelectorOnMainThread:@selector(imageLoadingComplete) withObject:nil waitUntilDone:NO];
- }
- }
- });
- }
- */
-
 @end

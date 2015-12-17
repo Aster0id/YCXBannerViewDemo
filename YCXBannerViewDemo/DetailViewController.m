@@ -25,23 +25,27 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     NSArray *images =
-    @[@"https://raw.githubusercontent.com/Aster0id/TestData/master/img1.jpg",
-      @"https://raw.githubusercontent.com/Aster0id/TestData/master/img2.jpg",
-      @"https://raw.githubusercontent.com/Aster0id/TestData/master/img3.jpg",
-      @"https://raw.githubusercontent.com/Aster0id/TestData/master/img4.jpg"
+    @[[[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img1.jpg"],
+      [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img2.jpg"],
+      [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img3.jpg"],
+      [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img4.jpg"]
       ];
     [self.bannerView resetBannerViewWithImagesArray:images andAutoplay:YES];
+    self.bannerView.delegate = self;
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Reload" style:UIBarButtonItemStylePlain target:self action:@selector(reload)];
 }
 
 - (void)reload {
-    NSArray *images = @[
-                        @"https://raw.githubusercontent.com/Aster0id/TestData/master/img3.jpg",
-                        @"https://raw.githubusercontent.com/Aster0id/TestData/master/img2.jpg",
-                        @"https://raw.githubusercontent.com/Aster0id/TestData/master/img4.jpg"
-                        ];
+    NSArray *images =
+    @[
+      [[YCXBannerPhoto alloc] initWithImage:[UIImage imageNamed:@"img1"]],
+      [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img3.jpg"],
+      [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img2.jpg"],
+      [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img4.jpg"]
+      ];
     [self.bannerView resetBannerViewWithImagesArray:images andAutoplay:YES];
 }
 

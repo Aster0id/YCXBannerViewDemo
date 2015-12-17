@@ -9,8 +9,16 @@
 #import <UIKit/UIKit.h>
 #import "YCXBannerPhoto.h"
 
+@class YCXBannerPhotoView;
+
+
+typedef void(^TapPhotoView)(YCXBannerPhotoView *);
+
+
 @interface YCXBannerPhotoView : UIView
 
+@property (nonatomic, assign) NSUInteger index;
 @property (nonatomic, strong) YCXBannerPhoto *photo;
+@property (nonatomic, copy)   TapPhotoView tapPhotoView;
 
 @end

@@ -7,12 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "YCXBannerPhoto.h"
+
 
 @class YCXBannerView;
 
-/// Banner控件的委托
-@protocol YCXBannerViewDelegate <NSObject>
 
+@protocol YCXBannerViewDelegate <NSObject>
 
 /**
  *	@brief	点击图片后, 获取被点击图片在图片数组中的位置
@@ -25,8 +26,8 @@
 
 @end
 
-@interface YCXBannerView : UIView
 
+@interface YCXBannerView : UIView
 
 /// 图片数组
 @property (nonatomic, strong) NSArray *imagesArray;
