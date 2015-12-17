@@ -17,8 +17,11 @@ typedef void(^TapPhotoView)(YCXBannerPhotoView *);
 
 @interface YCXBannerPhotoView : UIView
 
+/// PhotoView的索引
 @property (nonatomic, assign) NSUInteger index;
+/// 视图中加载的Photo
 @property (nonatomic, strong) YCXBannerPhoto *photo;
+/// 点击视图的Block
 @property (nonatomic, copy)   TapPhotoView tapPhotoView;
 
 @end
