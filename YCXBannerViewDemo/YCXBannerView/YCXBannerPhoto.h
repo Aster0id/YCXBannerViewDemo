@@ -14,13 +14,15 @@
 
 @interface YCXBannerPhoto : NSObject <YCXBannerPhotoProtocol>
 
-/// 文字说明
+/// 图片描述
 @property (nonatomic, strong) NSString *caption;
 
 + (YCXBannerPhoto *)initWithImage:(UIImage *)image andCaption:(NSString *)caption;
+
 + (YCXBannerPhoto *)initWithURL:(id)url andCaption:(NSString *)caption;
 
 - (id)initWithImage:(UIImage *)image;
+
 - (id)initWithURL:(id)url;
 
 @end
