@@ -9,6 +9,8 @@
 #import "YCXBannerPhoto.h"
 #import "SDWebImageManager.h"
 
+NSString *const kYCXBannerPhotoProgressNotification = @"YCXBannerPhoto.Progress.Notification";
+NSString *const kYCXBannerPhotoLoadingDidEndNotification = @"YCXBannerPhoto.LoadingDidEnd.Notification";
 
 @interface YCXBannerPhoto ()
 {
@@ -22,7 +24,7 @@
 @end
 
 @implementation YCXBannerPhoto
-
+@synthesize underlyingImage = _underlyingImage;
 
 #pragma mark - Init
 
@@ -125,7 +127,7 @@
 }
 
 - (void)postCompleteNotification {
-    [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_LOADING_DID_END_NOTIFICATION object:self];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kYCXBannerPhotoLoadingDidEndNotification object:self];
 }
 
 - (void)cancelAnyLoading {
@@ -147,7 +149,8 @@
                 NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:
                                       [NSNumber numberWithFloat:progress], @"progress",
                                       self, @"photo", nil];
-                [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_PROGRESS_NOTIFICATION object:dict];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kYCXBannerPhotoProgressNotification object:dict];
+
             }
         } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
             if (error) {

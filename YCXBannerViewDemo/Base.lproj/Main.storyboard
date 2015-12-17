@@ -79,7 +79,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UVR-mC-wqL" customClass="YCXBannerView">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="259"/>
+                                <rect key="frame" x="0.0" y="10" width="414" height="259"/>
                                 <color key="backgroundColor" red="0.95294117647058818" green="0.95294117647058818" blue="0.95294117647058818" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="UVR-mC-wqL" secondAttribute="height" multiplier="16:10" id="2x8-VC-yR9"/>
@@ -88,7 +88,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="UVR-mC-wqL" firstAttribute="top" secondItem="Ed9-Wr-XEO" secondAttribute="bottom" id="FqG-0s-YmD"/>
+                            <constraint firstItem="UVR-mC-wqL" firstAttribute="top" secondItem="Ed9-Wr-XEO" secondAttribute="bottom" constant="10" id="FqG-0s-YmD"/>
                             <constraint firstItem="UVR-mC-wqL" firstAttribute="leading" secondItem="hdQ-kI-yRK" secondAttribute="leading" id="NMV-7X-GEj"/>
                             <constraint firstAttribute="trailing" secondItem="UVR-mC-wqL" secondAttribute="trailing" id="rgm-zX-eYF"/>
                         </constraints>

@@ -19,9 +19,12 @@
 
 
 @implementation DetailViewController
-
+{
+    YCXBannerView *_banner1;
+}
 
 #pragma mark - Lifecycle Methods
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -53,10 +56,31 @@
     self.bannerView.photosArray = images;
     [self.bannerView reloadData];
     
+    
+    _banner1 = [[YCXBannerView alloc] init];
+    _banner1.photosArray = [self randomPhotoArray];
+    _banner1.delegate = self;
+    _banner1.frame = CGRectMake(0, self.view.frame.size.width*10/16.0 + 10 + 10, self.view.frame.size.width, self.view.frame.size.width/2);
+    [self.view addSubview:_banner1];
+
+    [_banner1 reloadData];
+    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Random" style:UIBarButtonItemStylePlain target:self action:@selector(random)];
+    
 }
 
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+
+}
+
+
 - (void)random {
+    self.bannerView.photosArray = [self randomPhotoArray];
+    [self.bannerView reloadData];
+}
+
+- (NSArray *)randomPhotoArray {
     NSArray *images =
     @[
       [YCXBannerPhoto initWithImage:[UIImage imageNamed:@"img1.jpg"] andCaption:@"哈哈哈哈哈哈哈哈哈哈哈哈哈哈笑cry"],
@@ -75,17 +99,15 @@
         [mImages replaceObjectAtIndex:target withObject:mImages[i]];
         [mImages replaceObjectAtIndex:i withObject:temp];
     }
-
-    [mImages removeObjectsInRange:NSMakeRange(0, (arc4random() % imagesCount))];
     
-    self.bannerView.photosArray = mImages;
-    [self.bannerView reloadData];
+    [mImages removeObjectsInRange:NSMakeRange(0, (arc4random() % imagesCount))];
+    return mImages;
 }
 
 #pragma mark - YCXBannerViewDelegate
 
 - (void)bannerView:(YCXBannerView *)bannerView clickAtIndex:(NSInteger)index {
-    NSLog(@"clickAtIndex %zd",index);
+    NSLog(@"%@ \n>>>>>> clickAtIndex %zd",bannerView ,index);
 }
 
 

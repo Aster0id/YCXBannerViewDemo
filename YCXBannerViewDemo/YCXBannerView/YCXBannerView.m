@@ -12,8 +12,9 @@
 #import "YCXBannerPhotoView.h"
 
 
+/// 循环滚动的时间
 static const NSTimeInterval kTimeInterval = 3.0;
-
+/// 描述视图的高度
 static const float kDescriptionViewHeight = 31.0;
 /// 描述文字的左边距
 static const float kDescriptionLabelLeft = 8.0;
@@ -44,9 +45,13 @@ static const float kPageControlMargin = 8.0;
     
     // 图片总数
     NSUInteger _imagesCount;
-    
+    // 是否为单张图片, 如果是单张图片不能滑动
+    BOOL _isSinglePhoto;
     // 自动播放定时器
     NSTimer *_autoplayTimer;
+    // PhotoView的集合
+    NSMutableArray *_visiblePages;
+    
 }
 
 
@@ -55,10 +60,24 @@ static const float kPageControlMargin = 8.0;
 - (instancetype)init {
     self = [super init];
     if (self) {
-        self.autoplay = YES;
-        self.backgroundColor = [UIColor colorWithWhite:0.97 alpha:1.0];
+        [self initialization];
     }
     return self;
+}
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    if ((self = [super initWithCoder:decoder])) {
+        [self initialization];
+    }
+    return self;
+}
+
+- (void)initialization {
+    
+    self.autoplay = YES;
+    _visiblePages = [NSMutableArray array];
+    self.backgroundColor = [UIColor colorWithWhite:0.97 alpha:1.0];
+    
 }
 
 - (void)layoutSubviews {
@@ -86,12 +105,21 @@ static const float kPageControlMargin = 8.0;
     
     [self reduction];
     
-    NSAssert(self.photosArray.count > 0, @"图片数组不能为空");
     // _imagesCount赋值
     _imagesCount = self.photosArray.count;
     
+    NSAssert(_imagesCount > 0, @"图片数组不能为空");
+    _isSinglePhoto = (_imagesCount == 1);
+    
     [self configPhotoViewScrollView];
     [self configDescriptionView];
+    
+    // 初始化描述文字显示内容
+    // YCXBannerPhoto *photo = self.photosArray[0];
+    // self.descriptionLabel.text = photo.caption;
+    
+    // 设置计时器重新开始计时
+    [self performAutoPlayTimer];
 }
 
 
@@ -106,6 +134,8 @@ static const float kPageControlMargin = 8.0;
     self.pageControl = nil;
     self.containerView = nil;
     self.descriptionLabel = nil;
+    
+    [_visiblePages removeAllObjects];
 }
 
 /**
@@ -147,9 +177,6 @@ static const float kPageControlMargin = 8.0;
     
     NSLayoutConstraint *descriptionLabelRight = [NSLayoutConstraint constraintWithItem:self.descriptionLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.pageControl attribute:NSLayoutAttributeLeft multiplier:1 constant:22-kPageControlMargin];
     [self.descriptionView addConstraint:descriptionLabelRight];
-    
-    YCXBannerPhoto *photo = self.photosArray[0];
-    self.descriptionLabel.text = photo.caption;
     
 }
 
@@ -197,6 +224,7 @@ static const float kPageControlMargin = 8.0;
         photoView.translatesAutoresizingMaskIntoConstraints = NO;
         
         [self.containerView addSubview:photoView];
+        [_visiblePages addObject:photoView];
         
         NSArray *photoViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[photoView]-0-|" options:0 metrics:nil views:@{@"photoView":photoView}];
         [self.photoViewScrollView addConstraints:photoViewVerticalConstraints];
@@ -221,11 +249,6 @@ static const float kPageControlMargin = 8.0;
                 [self.delegate bannerView:self clickAtIndex:photoView.index];
             }
         }];
-        
-    }
-    
-    if (self.isAutoplay) {
-        [self performSelector:@selector(autoPlayScrollView) withObject:nil afterDelay:0.0f];
     }
 }
 
@@ -245,12 +268,8 @@ static const float kPageControlMargin = 8.0;
         [self.photoViewScrollView setContentOffset:CGPointMake(0, 0)];
         pt = self.photoViewScrollView.contentOffset;
     }
-    //滚动视图
-    [self.photoViewScrollView scrollRectToVisible:CGRectMake(pt.x+self.frame.size.width,
-                                                             0,
-                                                             self.frame.size.width,
-                                                             self.frame.size.height)
-                                         animated:YES];
+    // 滚动视图
+    [self.photoViewScrollView scrollRectToVisible:CGRectMake(pt.x + self.frame.size.width, 0, self.frame.size.width, self.frame.size.height) animated:YES];
 }
 
 
@@ -268,23 +287,27 @@ static const float kPageControlMargin = 8.0;
         [self.photoViewScrollView scrollRectToVisible:CGRectMake(self.frame.size.width, 0, self.frame.size.width, self.frame.size.height) animated:NO];
     }
     
-    if (self.isAutoplay) {
-        [self autoPlayScrollView];
+    // 设置计时器重新开始计时
+    [self performAutoPlayTimer];
+}
+
+- (void)performAutoPlayTimer {
+    if (self.isAutoplay && !_isSinglePhoto) {
+        [self performSelector:@selector(autoPlayScrollView) withObject:nil afterDelay:0.0f];
+    } else {
+        [_autoplayTimer invalidate];
+        _autoplayTimer = nil;
     }
 }
 
--(void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    // 设置pageControl.currentPage
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     // roundf() 四舍五入取整
     int imageIndex = (int)roundf(scrollView.contentOffset.x / scrollView.frame.size.width);
-    NSInteger index = (imageIndex == 0?
-                       _imagesCount-1:
-                       (imageIndex == _imagesCount +1?0:imageIndex - 1));
-    self.pageControl.currentPage = index;
-    if (self.photosArray.count > index) {
-        YCXBannerPhoto *photo = self.photosArray[index];
-        self.descriptionLabel.text = photo.caption;
-    }
+    // 设置pageControl.currentPage
+    YCXBannerPhotoView *photoView = _visiblePages[imageIndex];
+    self.pageControl.currentPage = photoView.index;
+    // 设置描述文字
+    self.descriptionLabel.text = photoView.photo.caption;
 }
 
 
@@ -339,9 +362,8 @@ static const float kPageControlMargin = 8.0;
         _photoViewScrollView.showsHorizontalScrollIndicator = NO;
         _photoViewScrollView.showsVerticalScrollIndicator = NO;
         _photoViewScrollView.clipsToBounds = YES;
-        _photoViewScrollView.scrollEnabled = _imagesCount > 1;
         _photoViewScrollView.translatesAutoresizingMaskIntoConstraints = NO;
-        
+        _photoViewScrollView.scrollEnabled = !_isSinglePhoto;
         [_photoViewScrollView setDelegate:self];
         
     }

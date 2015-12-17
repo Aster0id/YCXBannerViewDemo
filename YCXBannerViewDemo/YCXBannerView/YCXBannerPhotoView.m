@@ -34,13 +34,13 @@
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(setProgressFromNotification:)
-                                                     name:MWPHOTO_PROGRESS_NOTIFICATION
+                                                     name:kYCXBannerPhotoProgressNotification
                                                    object:nil];
         
         // Listen for MWPhoto notifications
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleMWPhotoLoadingDidEndNotification:)
-                                                     name:MWPHOTO_LOADING_DID_END_NOTIFICATION
+                                                     name:kYCXBannerPhotoLoadingDidEndNotification
                                                    object:nil];
         
         self.userInteractionEnabled = YES;
