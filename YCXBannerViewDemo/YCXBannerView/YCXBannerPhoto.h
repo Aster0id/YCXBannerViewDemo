@@ -21,6 +21,9 @@
 
 @property (nonatomic, strong) UIImage *underlyingImage;
 
++ (YCXBannerPhoto *)initWithImage:(UIImage *)image andCaption:(NSString *)caption;
++ (YCXBannerPhoto *)initWithURL:(id)url andCaption:(NSString *)caption;
+
 - (id)initWithImage:(UIImage *)image;
 - (id)initWithURL:(id)url;
 

@@ -30,10 +30,7 @@
 @interface YCXBannerView : UIView
 
 /// 图片数组
-@property (nonatomic, strong) NSArray *imagesArray;
-
-/// 标题数组
-@property (nonatomic, strong) NSArray *titleArray;
+@property (nonatomic, strong) NSArray *photosArray;
 
 /// 是否自动循环滚动, 默认不自动循环
 @property (nonatomic, assign, getter = isAutoplay) BOOL autoplay;
@@ -47,15 +44,5 @@
  */
 - (void)reloadData;
 
-
-/**
- *	@brief	重新加载数据
- *
- *	@param 	imagesArray   图片数组
- *	@param 	isAutoplay 	是否自动循环滚动
- *
- *  @see  - (void)reloadData;
- */
-- (void)resetBannerViewWithImagesArray:(NSArray *)imagesArray andAutoplay:(BOOL)autoplay;
 
 @end

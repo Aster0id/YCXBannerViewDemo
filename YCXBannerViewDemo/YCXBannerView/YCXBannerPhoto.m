@@ -26,6 +26,18 @@
 
 #pragma mark - Init
 
++ (YCXBannerPhoto *)initWithImage:(UIImage *)image andCaption:(NSString *)caption {
+    YCXBannerPhoto *photo = [[YCXBannerPhoto alloc] initWithImage:image];
+    photo.caption = caption;
+    return photo;
+}
+
++ (YCXBannerPhoto *)initWithURL:(id)url andCaption:(NSString *)caption {
+    YCXBannerPhoto *photo = [[YCXBannerPhoto alloc] initWithURL:url];
+    photo.caption = caption;
+    return photo;
+}
+
 - (id)init {
     if ((self = [super init])) {
     }

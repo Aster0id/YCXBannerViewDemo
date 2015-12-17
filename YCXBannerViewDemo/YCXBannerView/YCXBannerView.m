@@ -12,9 +12,13 @@
 #import "YCXBannerPhotoView.h"
 
 
-static const NSTimeInterval kTimeInterval = 3.0f;
-static const float kDescriptionViewHeight = 31;
+static const NSTimeInterval kTimeInterval = 3.0;
 
+static const float kDescriptionViewHeight = 31.0;
+/// 描述文字的左边距
+static const float kDescriptionLabelLeft = 8.0;
+/// pageControl的外边距
+static const float kPageControlMargin = 8.0;
 
 @interface YCXBannerView ()
 <UIScrollViewDelegate>
@@ -62,6 +66,11 @@ static const float kDescriptionViewHeight = 31;
     
     self.descriptionView.frame = CGRectMake(0, self.bounds.size.height-31, self.bounds.size.width, kDescriptionViewHeight);
     
+    self.pageControl.frame = CGRectMake(self.descriptionView.frame.size.width - (_pageControl.frame.size.width), (self.descriptionView.frame.size.height - _pageControl.frame.size.height)/2, _pageControl.frame.size.width, _pageControl.frame.size.height);
+    
+    _descriptionLabel.frame = CGRectMake(kDescriptionLabelLeft, 0,  self.pageControl.frame.origin.x, self.descriptionView.frame.size.height);
+
+    
     self.containerView.frame = CGRectMake(0, 0, self.bounds.size.width*(_imagesCount+2), self.bounds.size.height);
     
     self.photoViewScrollView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
@@ -77,21 +86,14 @@ static const float kDescriptionViewHeight = 31;
     
     [self reduction];
     
-    NSAssert(self.imagesArray.count > 0, @"图片数组不能为空");
+    NSAssert(self.photosArray.count > 0, @"图片数组不能为空");
     // _imagesCount赋值
-    _imagesCount = self.imagesArray.count;
+    _imagesCount = self.photosArray.count;
     
     [self configPhotoViewScrollView];
     [self configDescriptionView];
 }
 
-- (void)resetBannerViewWithImagesArray:(NSArray *)imagesArray andAutoplay:(BOOL)autoplay {
-    
-    self.imagesArray = imagesArray;
-    self.autoplay = autoplay;
-    
-    [self reloadData];
-}
 
 #pragma mark - Private Methods
 
@@ -121,13 +123,34 @@ static const float kDescriptionViewHeight = 31;
     //设置pageControl
     [self.descriptionView addSubview:self.pageControl];
     
+    
+    CGSize pageControlSize = [self.pageControl sizeForNumberOfPages:_imagesCount];
+    NSArray *pageControlHorizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[pageControl(==width)]-margin-|" options:0 metrics:@{@"width":@(pageControlSize.width),@"margin":@(-22+kPageControlMargin)} views:@{@"pageControl":self.pageControl}];
+    [self.descriptionView addConstraints:pageControlHorizontalConstraints];
+
+
+    NSLayoutConstraint *pageControlHeight = [NSLayoutConstraint constraintWithItem:self.pageControl attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:self.pageControl.frame.size.height];
+    [self.pageControl addConstraint:pageControlHeight];
+    
+    NSLayoutConstraint *pageControlVerticalCenterY = [NSLayoutConstraint constraintWithItem:self.pageControl attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.descriptionView attribute:NSLayoutAttributeCenterY multiplier:1 constant:0];
+    [self.descriptionView addConstraint:pageControlVerticalCenterY];
+    
+    
     // 设置描述文字标签
     [self.descriptionView addSubview:self.descriptionLabel];
     
+    NSArray *descriptionLabelVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[descriptionLabel]-0-|" options:0 metrics:nil views:@{@"descriptionLabel":self.descriptionLabel}];
+    [self.descriptionView addConstraints:descriptionLabelVerticalConstraints];
     
-    if (_titleArray.count>0) {
-        self.descriptionLabel.text = _titleArray[0];
-    }
+    NSLayoutConstraint *descriptionLabelLeft = [NSLayoutConstraint constraintWithItem:self.descriptionLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.descriptionView attribute:NSLayoutAttributeLeft multiplier:1 constant:kDescriptionLabelLeft];
+    [self.descriptionView addConstraint:descriptionLabelLeft];
+    
+    NSLayoutConstraint *descriptionLabelRight = [NSLayoutConstraint constraintWithItem:self.descriptionLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.pageControl attribute:NSLayoutAttributeLeft multiplier:1 constant:22-kPageControlMargin];
+    [self.descriptionView addConstraint:descriptionLabelRight];
+    
+    YCXBannerPhoto *photo = self.photosArray[0];
+    self.descriptionLabel.text = photo.caption;
+    
 }
 
 /**
@@ -148,20 +171,20 @@ static const float kDescriptionViewHeight = 31;
     NSLayoutConstraint *containerViewHeight = [NSLayoutConstraint constraintWithItem:self.containerView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.photoViewScrollView attribute:NSLayoutAttributeHeight multiplier:1 constant:0];
     [self.photoViewScrollView addConstraint:containerViewWidth];
     [self.photoViewScrollView addConstraint:containerViewHeight];
-
+    
     NSArray *photoViewHorizontalConstraints =
     [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[containerView]-0-|" options:0 metrics:nil views:@{@"containerView":self.containerView}];
     NSArray *photoViewVerticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[containerView]-0-|" options:0 metrics:nil views:@{@"containerView":self.containerView}];
     [self.photoViewScrollView addConstraints:photoViewHorizontalConstraints];
     [self.photoViewScrollView addConstraints:photoViewVerticalConstraints];
     
-
-    NSMutableArray *mPhotoArray = [self.imagesArray mutableCopy];
     
-    YCXBannerPhoto *lastPhoto = [self.imagesArray lastObject];
+    NSMutableArray *mPhotoArray = [self.photosArray mutableCopy];
+    
+    YCXBannerPhoto *lastPhoto = [self.photosArray lastObject];
     [mPhotoArray insertObject:lastPhoto atIndex:0];
     
-    NSString *firstPhoto = [self.imagesArray firstObject];
+    NSString *firstPhoto = [self.photosArray firstObject];
     [mPhotoArray insertObject:firstPhoto atIndex:_imagesCount+1];
     
     
@@ -169,7 +192,7 @@ static const float kDescriptionViewHeight = 31;
         
         YCXBannerPhotoView *photoView = [[YCXBannerPhotoView alloc] init];
         photoView.photo = mPhotoArray[i];
-
+        
         photoView.frame = CGRectMake(i * self.photoViewScrollView.bounds.size.width, 0, self.photoViewScrollView.bounds.size.width, self.photoViewScrollView.bounds.size.height);
         photoView.translatesAutoresizingMaskIntoConstraints = NO;
         
@@ -192,13 +215,13 @@ static const float kDescriptionViewHeight = 31;
         
         photoView.tag = i;
         photoView.index = (i == 0 ? (_imagesCount - 1) : (i== _imagesCount+1 ? 0 : i - 1));
-
+        
         [photoView setTapPhotoView:^(YCXBannerPhotoView *photoView){
             if (self.delegate && [self.delegate respondsToSelector:@selector(bannerView:clickAtIndex:)]) {
                 [self.delegate bannerView:self clickAtIndex:photoView.index];
             }
         }];
-
+        
     }
     
     if (self.isAutoplay) {
@@ -258,8 +281,9 @@ static const float kDescriptionViewHeight = 31;
                        _imagesCount-1:
                        (imageIndex == _imagesCount +1?0:imageIndex - 1));
     self.pageControl.currentPage = index;
-    if (_titleArray.count>index) {
-        self.descriptionLabel.text = self.titleArray[index];
+    if (self.photosArray.count > index) {
+        YCXBannerPhoto *photo = self.photosArray[index];
+        self.descriptionLabel.text = photo.caption;
     }
 }
 
@@ -282,18 +306,12 @@ static const float kDescriptionViewHeight = 31;
         [_pageControl setType:DDPageControlTypeOnFullOffFull];
         [_pageControl setOnColor:[UIColor redColor]];
         [_pageControl setOffColor:[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.8]];
-        [_pageControl setIndicatorDiameter:6.0f];
-        [_pageControl setIndicatorSpace:8.0f];
+        _pageControl.indicatorDiameter = 6.0;
+        _pageControl.indicatorSpace = 8.0;
         [_pageControl setNumberOfPages:_imagesCount];
-        [_pageControl setCurrentPage:0];
+        _pageControl.currentPage = 0;
         
-        [_pageControl setFrame:CGRectMake(self.descriptionView.frame.size.width - (_pageControl.frame.size.width), (self.descriptionView.frame.size.height - _pageControl.frame.size.height)/2, _pageControl.frame.size.width, _pageControl.frame.size.height)];
-        
-        _pageControl.autoresizingMask =
-        UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleLeftMargin |
-        UIViewAutoresizingFlexibleRightMargin|
-        UIViewAutoresizingFlexibleBottomMargin;
+        _pageControl.translatesAutoresizingMaskIntoConstraints = NO;
         
     }
     return _pageControl;
@@ -306,12 +324,7 @@ static const float kDescriptionViewHeight = 31;
         _descriptionLabel.textColor = [UIColor whiteColor];
         _descriptionLabel.font = [UIFont systemFontOfSize:16.0f];
         
-        _descriptionLabel.frame = CGRectMake(12, 0,  self.pageControl.frame.origin.x, self.descriptionView.frame.size.height);
-        
-        _descriptionLabel.autoresizingMask =
-        UIViewAutoresizingFlexibleTopMargin |
-        UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleBottomMargin;
+        _descriptionLabel.translatesAutoresizingMaskIntoConstraints = NO;
     }
     return _descriptionLabel;
 }
@@ -326,7 +339,7 @@ static const float kDescriptionViewHeight = 31;
         _photoViewScrollView.showsHorizontalScrollIndicator = NO;
         _photoViewScrollView.showsVerticalScrollIndicator = NO;
         _photoViewScrollView.clipsToBounds = YES;
-        
+        _photoViewScrollView.scrollEnabled = _imagesCount > 1;
         _photoViewScrollView.translatesAutoresizingMaskIntoConstraints = NO;
         
         [_photoViewScrollView setDelegate:self];
