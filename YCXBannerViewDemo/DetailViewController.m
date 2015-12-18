@@ -34,11 +34,13 @@
     
     switch (self.type) {
         case YCXTypeNetwork: {
-            images = @[[[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img1.jpg"],
-                       [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img2.jpg"],
-                       [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img3.jpg"],
-                       [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img4.jpg"]
-                       ];
+            images =
+            @[
+              [YCXBannerPhoto initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img1.jpg" andCaption:nil],
+              [YCXBannerPhoto initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img2.jpg" andCaption:@"好风景"],
+              [YCXBannerPhoto initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img3.jpg" andCaption:nil],
+              [[YCXBannerPhoto alloc] initWithURL:@"https://raw.githubusercontent.com/Aster0id/TestData/master/img4.jpg"]
+              ];
         } break;
         case YCXTypeLocal: {
             images =
@@ -62,7 +64,7 @@
     _banner1.delegate = self;
     _banner1.frame = CGRectMake(0, self.view.frame.size.width*10/16.0 + 10 + 10, self.view.frame.size.width, self.view.frame.size.width/2);
     [self.view addSubview:_banner1];
-
+    
     [_banner1 reloadData];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Random" style:UIBarButtonItemStylePlain target:self action:@selector(random)];
@@ -71,7 +73,7 @@
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-
+    
 }
 
 
