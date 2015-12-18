@@ -5,11 +5,16 @@
 
 很好用的轮播控件, 可以加载本地图片资源, 可以通过URL链接加载网络图片. 同时可以为图片添加描述文字.
 
-Gif
+
+## 效果
+
+### Gif
+
+[YCXBannerView-record](https://vid.me/TyEV)
 
 <img src="https://vid.me/TyEV" width="320">
 
-录制效果
+### 录制视频
 
 <iframe src="https://vid.me/e/qVJw" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen scrolling="no" height="480" width="268"></iframe>
 
