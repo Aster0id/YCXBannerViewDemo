@@ -6,9 +6,11 @@
 很好用的轮播控件, 可以加载本地图片资源, 可以通过URL链接加载网络图片. 同时可以为图片添加描述文字.
 
 录制效果
+
+<iframe src="https://vid.me/e/qVJw" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen scrolling="no" height="480" width="268"></iframe>
+
 [YCXBannerView-record](https://vid.me/qVJw)
-<iframe src="https://player.vimeo.com/video/149351982" width="500" height="889" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-<p><a href="https://vimeo.com/149351982">YCXBannerView-record</a> from <a href="https://vimeo.com/aster0id">Aster0id</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+
 
 ## 安装
 
