@@ -10,15 +10,9 @@
 
 ### Gif
 
-<img src="https://vid.me/TyEV" width="320">
+<img src="https://github.com/Aster0id/YCXBannerViewDemo/blob/master/Assets/YCXBannerView-record.gif" width="320">
 
 ### 录制视频
-
-<video id="video" controls="" preload="none" poster="http://media.w3.org/2010/05/sintel/poster.png">
-      <source id="mp4" src="http://media.w3.org/2010/05/sintel/trailer.mp4" type="video/mp4">
-      <source id="webm" src="http://media.w3.org/2010/05/sintel/trailer.webm" type="video/webm">
-      <source id="ogv" src="http://media.w3.org/2010/05/sintel/trailer.ogv" type="video/ogg">
-</video>
 
 <iframe src="https://vid.me/e/qVJw" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen scrolling="no" height="480" width="268"></iframe>
 
