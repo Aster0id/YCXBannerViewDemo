@@ -32,7 +32,7 @@ Pod::Spec.new do |s|
 
   # ――― Project Linking ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.frameworks = "UIKit"
-  s.dependency pod 'SDWebImage'
-  s.dependency pod 'DDPageControl'
+  s.dependency 'SDWebImage'#, '~> 3.7.3'
+  s.dependency 'DDPageControl'#, '~> 0.1'
 
 end
