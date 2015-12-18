@@ -3,7 +3,7 @@
 ![CocoaPods Version](https://img.shields.io/cocoapods/v/YCXBannerView.svg?style=flat)
 [![License](https://img.shields.io/github/license/aster0id/YCXBannerViewDemo.svg?style=flat)](https://github.com/Aster0id/YCXBannerViewDemo/blob/master/LICENSE)
 
-最好用的轮播控件, 可以加载本地图片资源, 可以通过URL链接加载网络图片. 同时可以为图片添加描述文字.
+很好用的轮播控件, 可以加载本地图片资源, 可以通过URL链接加载网络图片. 同时可以为图片添加描述文字.
 
 
 ## 安装
