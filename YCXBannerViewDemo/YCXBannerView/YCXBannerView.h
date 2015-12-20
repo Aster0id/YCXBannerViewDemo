@@ -14,6 +14,8 @@
 
 @protocol YCXBannerViewDelegate <NSObject>
 
+@optional
+
 /**
  *	@brief	点击图片后, 获取被点击图片在图片数组中的位置
  *
@@ -22,6 +24,15 @@
  *
  */
 - (void)bannerView:(YCXBannerView *)bannerView clickAtIndex:(NSInteger)index;
+
+/**
+ *	@brief	点击图片后, 获取被点击图片在图片数组中的位置
+ *
+ *  @param  bannerView YCXBannerView控件
+ *	@param 	index 被点击图片在图片数组中的位置
+ *
+ */
+- (void)bannerView:(YCXBannerView *)bannerView scrollToPage:(NSInteger)index;
 
 @end
 

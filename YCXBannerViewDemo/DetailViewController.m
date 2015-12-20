@@ -58,14 +58,17 @@
     self.bannerView.photosArray = images;
     [self.bannerView reloadData];
     
+    self.bannerView.autoplay = YES;
+
     
-    _banner1 = [[YCXBannerView alloc] init];
-    _banner1.photosArray = [self randomPhotoArray];
-    _banner1.delegate = self;
-    _banner1.frame = CGRectMake(0, self.view.frame.size.width*10/16.0 + 10 + 10, self.view.frame.size.width, self.view.frame.size.width/2);
-    [self.view addSubview:_banner1];
+//    _banner1 = [[YCXBannerView alloc] init];
+//    _banner1.photosArray = [self randomPhotoArray];
+//    _banner1.delegate = self;
+//    _banner1.frame = CGRectMake(0, self.view.frame.size.width*10/16.0 + 10 + 10, self.view.frame.size.width, self.view.frame.size.width/2);
+//    [self.view addSubview:_banner1];
+//    
+//    [_banner1 reloadData];
     
-    [_banner1 reloadData];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Random" style:UIBarButtonItemStylePlain target:self action:@selector(random)];
     
@@ -112,5 +115,8 @@
     NSLog(@"%@ \n>>>>>> clickAtIndex %zd",bannerView ,index);
 }
 
+- (void)bannerView:(YCXBannerView *)bannerView scrollToPage:(NSInteger)index {
+    NSLog(@"scrollToPage: %zd",index);
+}
 
 @end

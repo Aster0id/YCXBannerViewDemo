@@ -252,6 +252,15 @@ static const float kPageControlMargin = 8.0;
     }
 }
 
+- (void)performAutoPlayTimer {
+    if (self.isAutoplay && !_isSinglePhoto) {
+        [self autoPlayScrollView];
+    } else {
+        [_autoplayTimer invalidate];
+        _autoplayTimer = nil;
+    }
+}
+
 /// 自动循环滚动
 - (void) autoPlayScrollView {
     [_autoplayTimer invalidate];
@@ -291,21 +300,17 @@ static const float kPageControlMargin = 8.0;
     [self performAutoPlayTimer];
 }
 
-- (void)performAutoPlayTimer {
-    if (self.isAutoplay && !_isSinglePhoto) {
-        [self performSelector:@selector(autoPlayScrollView) withObject:nil afterDelay:0.0f];
-    } else {
-        [_autoplayTimer invalidate];
-        _autoplayTimer = nil;
-    }
-}
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     // roundf() 四舍五入取整
     int imageIndex = (int)roundf(scrollView.contentOffset.x / scrollView.frame.size.width);
     // 设置pageControl.currentPage
     YCXBannerPhotoView *photoView = _visiblePages[imageIndex];
-    self.pageControl.currentPage = photoView.index;
+    NSInteger index = photoView.index;
+    self.pageControl.currentPage = index;
+    if (self.delegate && [self.delegate respondsToSelector:@selector(bannerView:scrollToPage:)]) {
+        [self.delegate bannerView:self scrollToPage:index];
+    }
+    
     // 设置描述文字
     self.descriptionLabel.text = photoView.photo.caption;
 }
@@ -376,6 +381,12 @@ static const float kPageControlMargin = 8.0;
         _containerView.translatesAutoresizingMaskIntoConstraints = NO;
     }
     return _containerView;
+}
+
+- (void)setAutoplay:(BOOL)autoplay {
+    _autoplay = autoplay;
+    
+    [self performAutoPlayTimer];
 }
 
 @end
